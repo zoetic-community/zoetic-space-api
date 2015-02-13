@@ -14,3 +14,4 @@ instance ToJSON User
 
 allUsers :: [User]
 allUsers = [User {email="j@j.com", name="john"}, User {email="b@b.com", name="sam"}]
+
