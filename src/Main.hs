@@ -3,11 +3,9 @@ module Main where
 
 import Web.Scotty
 import Data.Aeson (encode)
-import Api.Users (allUsers)
+import Api.Users (userRoutes)
 
+main :: IO ()
 main = scotty 3000 $ do
-  get "/" $ do
-    text "Nothing to see here"
-    
-  get "/users" $ do
-    json allUsers
+  get "/" $ text "Nothing to see here"
+  userRoutes
