@@ -3,7 +3,7 @@
 
 module Api.Users (userRoutes) where
 
-import Web.Scotty (get, json, ScottyM)
+import Web.Scotty (get, post, json, ScottyM)
 import Data.Aeson (FromJSON, ToJSON)
 import GHC.Generics (Generic)
 
@@ -15,8 +15,8 @@ instance ToJSON User
 
 userRoutes ::  ScottyM ()
 userRoutes = do
-  get "/users" $ do
-    json allUsers
+  get "/users" $ json allUsers
+  post "/users" $ json allUsers
     
 allUsers :: [User]
 allUsers = [User {email="j@j.com", name="john"}, User {email="b@b.com", name="sam"}]

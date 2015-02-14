@@ -10,4 +10,4 @@ done
 
 set -e
 cabal build
-./dist/build/zoetic-api/zoetic-api
+./dist/build/zoetic-space-api/zoetic-space-api
