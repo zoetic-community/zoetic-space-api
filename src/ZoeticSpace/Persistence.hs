@@ -19,5 +19,6 @@ someProperties = M.fromList [ "name" |: ("John" :: T.Text)
                             , "email" |: ("j@j.com" :: T.Text)
                             ]
 
+create :: IO Node
 create = withConnection host port $ do
    createNode someProperties
