@@ -48,7 +48,7 @@ getUsers = do
 userRoutes ::  ScottyM ()
 userRoutes = do
   get "/users" $ do
-    users <- liftIO $ getUsers
+    users <- liftIO getUsers
     json users
   post "/users" $ do
     user <- jsonData :: ActionM User
