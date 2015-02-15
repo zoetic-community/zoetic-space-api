@@ -14,6 +14,8 @@ import Data.Aeson (FromJSON, ToJSON)
 import Database.Neo4j
 import Data.String.Conversions
 
+import Data.Lens.Light (setL)
+
 
 import ZoeticSpace.Persistence
 
@@ -30,9 +32,24 @@ instance ToNeo4j User where
                                      ]
   entityLabel _ = "User"
 
+getUsers :: IO [User]
+getUsers = do
+  nodes <- allByLabel "User"
+  return $ fmap convert nodes
+  where convert node = User {name = (toText $ lookup "name" node), email = (toText $ lookup "email" node)}
+        lookup :: T.Text -> Node -> Maybe PropertyValue
+        lookup key node = M.lookup key $ getNodeProperties node
+        
+        toText (Just (ValueProperty (TextVal val))) =  val
+        toText Nothing = "not found"
+
+
+
 userRoutes ::  ScottyM ()
 userRoutes = do
-  get "/users" $ text "pending"
+  get "/users" $ do
+    users <- liftIO $ getUsers
+    json users
   post "/users" $ do
     user <- jsonData :: ActionM User
     node <- liftIO $ create user
