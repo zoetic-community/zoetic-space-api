@@ -21,7 +21,7 @@ executable zoetic-space-api
     base >=4.7 && <4.8
     , scotty ==0.9.1
     , aeson ==0.8.0.2
-    , hypher ==0.1.2
+    , hypher ==0.1.5
     , unordered-containers ==0.2.*
     , text >= 1.1 && < 1.3
     , transformers ==0.4.*

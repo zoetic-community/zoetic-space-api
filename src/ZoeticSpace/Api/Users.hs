@@ -4,11 +4,12 @@
 module ZoeticSpace.Api.Users (userRoutes) where
 
 import GHC.Generics (Generic)
+import Control.Applicative
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import qualified Data.HashMap.Lazy as M
 import qualified Data.Text as T
 
-import Web.Scotty (get, post, json, text, ScottyM)
+import Web.Scotty (get, post, json, text, ScottyM, jsonData, ActionM)
 import Data.Aeson (FromJSON, ToJSON)
 import Database.Neo4j
 import Data.String.Conversions
@@ -24,8 +25,8 @@ instance ToJSON User
 
 instance ToNeo4j User where
   entityProperties user = M.fromList [
-                                       "name" |: (name user :: T.Text)
-                                     , "email" |: (email user :: T.Text)
+                                       "name" |: (name user)
+                                     , "email" |: (email user)
                                      ]
   entityLabel _ = "User"
 
@@ -33,7 +34,7 @@ userRoutes ::  ScottyM ()
 userRoutes = do
   get "/users" $ text "pending"
   post "/users" $ do
-    let user = User {name="John", email="bluey@blue.com"}
+    user <- jsonData :: ActionM User
     node <- liftIO $ create user
     text $ (cs . nodeId) node
     
