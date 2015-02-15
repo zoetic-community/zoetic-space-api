@@ -47,10 +47,11 @@ getUsers = do
 
 userRoutes ::  ScottyM ()
 userRoutes = do
-  get "/users" $ do
+  get "/v1/users" $ do
     users <- liftIO getUsers
     json users
-  post "/users" $ do
+    
+  post "/v1/users" $ do
     user <- jsonData :: ActionM User
     node <- liftIO $ create user
     text $ (cs . nodeId) node
