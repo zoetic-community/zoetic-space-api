@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-PID=`lsof -t -i4TCP:3000`
+PID=`lsof -i4TCP:3000 |grep zoetic |awk -F ' ' '{print $2}'`
 echo $PID
 
 while kill -0 $PID >/dev/null 2>&1
