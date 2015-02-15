@@ -10,8 +10,12 @@ port = 7474
 host :: Hostname
 host = "localhost"
 
-create :: Label -> Properties -> IO Node
-create label properties = withConnection host port $ do
-  n <- createNode properties
-  addLabels [label] n
+class ToNeo4j a where
+  entityProperties :: a -> Properties
+  entityLabel :: a -> Label
+
+create :: (ToNeo4j e) => e -> IO Node
+create entity = withConnection host port $ do
+  n <- createNode $ entityProperties entity
+  addLabels [(entityLabel entity)] n
   return n
