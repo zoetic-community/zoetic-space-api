@@ -21,11 +21,7 @@ import Database.Neo4j
 import Data.String.Conversions
 
 import ZoeticSpace.Persistence
-
-data ValidationErrors = ValidationErrors (SM.HashMap T.Text [T.Text])
-
-instance ToJSON ValidationErrors where
-  toJSON (ValidationErrors errors) = object [ "errors" .= (toJSON errors) ]
+import ZoeticSpace.Validation
 
 data User = User { id :: Maybe T.Text, name :: T.Text, email :: T.Text }
             deriving (Show, Generic)
@@ -56,9 +52,6 @@ instance FromNeo4j User where
                           , email = (getTextProperty "email" properties)
                           }
 
-class Validatable e where
-  errorsFor :: e -> Maybe ValidationErrors
-  
 instance Validatable User where
   errorsFor user = case collectErrors user of
                      [(_, [])] -> Nothing
@@ -66,15 +59,10 @@ instance Validatable User where
                      
                  where
                    collectErrors user = [("name", nameErrors user)]
-                   nameErrors user = foldl (runValidation (name user)) [] [blankValidation]
-                   
-                   runValidation value errors validation = case validation value of
-                                                             Just error -> error : errors
-                                                             Nothing -> errors
-  
+                   nameErrors user = runValidations (name user) [blankValidation]
+
                    blankValidation "" = Just "must not be blank"
                    blankValidation _ = Nothing
-                 
                  
 
 createOrValidationFail :: (Validatable e) => (e -> ActionM ()) -> e -> ActionM ()
