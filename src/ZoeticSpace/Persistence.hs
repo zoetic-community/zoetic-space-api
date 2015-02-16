@@ -20,9 +20,7 @@ class ToNeo4j a where
   entityLabel :: a -> Label
   
 class FromNeo4j a where
-  fromProperties :: Properties -> a
   fromNode :: Node -> a
-  fromNode = fromProperties . getNodeProperties
 
 allByLabel :: (FromNeo4j a) => Label -> IO [a]
 allByLabel label = withConnection host port $ do
