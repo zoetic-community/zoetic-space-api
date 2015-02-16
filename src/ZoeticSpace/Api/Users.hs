@@ -10,17 +10,22 @@ import Control.Applicative
 import Control.Monad.IO.Class (MonadIO, liftIO)
 import Control.Monad
 import qualified Data.HashMap.Lazy as M
+import qualified Data.HashMap.Strict as SM
 import qualified Data.Text as T
 import qualified Data.ByteString as S
 
-import Web.Scotty (get, post, json, text, ScottyM, jsonData, ActionM)
-import Data.Aeson (FromJSON, ToJSON, Value(Object), (.:), (.:?), parseJSON)
+import Web.Scotty (get, post, json, text, ScottyM, jsonData, ActionM, status)
+import Data.Aeson (FromJSON, ToJSON, Value(Object), (.:), (.:?), parseJSON, toJSON, object, (.=), encode)
+import Network.HTTP.Types (status400)
 import Database.Neo4j
 import Data.String.Conversions
 
 import ZoeticSpace.Persistence
 
-type ValidationError = String
+data ValidationErrors = ValidationErrors (SM.HashMap T.Text [T.Text])
+
+instance ToJSON ValidationErrors where
+  toJSON (ValidationErrors errors) = object [ "errors" .= (toJSON errors) ]
 
 data User = User { id :: Maybe T.Text, name :: T.Text, email :: T.Text }
             deriving (Show, Generic)
@@ -51,13 +56,28 @@ instance FromNeo4j User where
                           , email = (getTextProperty "email" properties)
                           }
 
-errorsFor :: User -> [ValidationError]
-errorsFor user = []
+errorsFor :: User -> Maybe ValidationErrors
+errorsFor user = case collectErrors user of
+                   [(_, [])] -> Nothing
+                   errors -> Just (ValidationErrors $ SM.fromList errors)
+                   
+               where
+                 collectErrors user = [("name", nameErrors user)]
+                 nameErrors user = foldl (runValidation (name user)) [] [blankValidation]
+                 
+                 runValidation value errors validation = case validation value of
+                                                           Just error -> error : errors
+                                                           Nothing -> errors
+
+                 blankValidation "" = Just "must not be blank"
+                 blankValidation _ = Nothing
+                 
+                 
 
 createOrError successFunc entity = do
   case errorsFor entity of
-    [] -> successFunc entity
-    errors -> json errors
+    Nothing -> successFunc entity
+    Just errors -> status status400 >> json errors
 
 getUsers :: IO [User]
 getUsers = do
