@@ -14,9 +14,6 @@ import Data.Aeson (FromJSON, ToJSON)
 import Database.Neo4j
 import Data.String.Conversions
 
-import Data.Lens.Light (setL)
-
-
 import ZoeticSpace.Persistence
 
 data User = User { name :: T.Text, email :: T.Text }
