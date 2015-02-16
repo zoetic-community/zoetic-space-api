@@ -31,19 +31,17 @@ instance ToNeo4j User where
                                      , "email" |: (email user)
                                      ]
   entityLabel _ = "User"
+  
+instance FromNeo4j User where
+  fromProperties properties = User {
+                                     name = (getTextProperty "name" properties)
+                                   , email = (getTextProperty "email" properties)
+                                   }
 
 getUsers :: IO [User]
 getUsers = do
-  nodes <- allByLabel "User"
-  return $ fmap convert nodes
-  where convert node = User {name = (toText $ lookup "name" node), email = (toText $ lookup "email" node)}
-        lookup :: T.Text -> Node -> Maybe PropertyValue
-        lookup key node = M.lookup key $ getNodeProperties node
-        
-        toText (Just (ValueProperty (TextVal val))) =  val
-        toText Nothing = "not found"
-
-
+  users <- allByLabel "User" :: IO [User]
+  return users
 
 userRoutes ::  ScottyM ()
 userRoutes = do
