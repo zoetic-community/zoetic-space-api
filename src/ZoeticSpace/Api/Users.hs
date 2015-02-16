@@ -49,5 +49,5 @@ userRoutes = do
   post "/v1/users" $ do
     user <- jsonData :: ActionM User
     node <- liftIO $ create user
-    text $ (cs . nodeId) node
+    json $ (fromNode node :: User)
     
