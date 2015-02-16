@@ -56,25 +56,29 @@ instance FromNeo4j User where
                           , email = (getTextProperty "email" properties)
                           }
 
-errorsFor :: User -> Maybe ValidationErrors
-errorsFor user = case collectErrors user of
-                   [(_, [])] -> Nothing
-                   errors -> Just (ValidationErrors $ SM.fromList errors)
+class Validatable e where
+  errorsFor :: e -> Maybe ValidationErrors
+  
+instance Validatable User where
+  errorsFor user = case collectErrors user of
+                     [(_, [])] -> Nothing
+                     errors -> Just (ValidationErrors $ SM.fromList errors)
+                     
+                 where
+                   collectErrors user = [("name", nameErrors user)]
+                   nameErrors user = foldl (runValidation (name user)) [] [blankValidation]
                    
-               where
-                 collectErrors user = [("name", nameErrors user)]
-                 nameErrors user = foldl (runValidation (name user)) [] [blankValidation]
-                 
-                 runValidation value errors validation = case validation value of
-                                                           Just error -> error : errors
-                                                           Nothing -> errors
-
-                 blankValidation "" = Just "must not be blank"
-                 blankValidation _ = Nothing
+                   runValidation value errors validation = case validation value of
+                                                             Just error -> error : errors
+                                                             Nothing -> errors
+  
+                   blankValidation "" = Just "must not be blank"
+                   blankValidation _ = Nothing
                  
                  
 
-createOrError successFunc entity = do
+createOrValidationFail :: (Validatable e) => (e -> ActionM ()) -> e -> ActionM ()
+createOrValidationFail successFunc entity = do
   case errorsFor entity of
     Nothing -> successFunc entity
     Just errors -> status status400 >> json errors
@@ -92,7 +96,7 @@ userRoutes = do
     
   post "/v1/users" $ do
     user <- jsonData :: ActionM User
-    createOrError persistUser user
+    createOrValidationFail persistUser user
     
   where persistUser user =  do
           node <- liftIO $ create user
