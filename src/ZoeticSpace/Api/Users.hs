@@ -14,7 +14,7 @@ import qualified Data.HashMap.Strict as SM
 import qualified Data.Text as T
 import qualified Data.ByteString as S
 
-import Web.Scotty (get, post, json, text, ScottyM, jsonData, ActionM, status)
+import Web.Scotty (get, post, json, text, ScottyM, jsonData, ActionM, status, setHeader)
 import Data.Aeson (FromJSON, ToJSON, Value(Object), (.:), (.:?), parseJSON, toJSON, object, (.=), encode)
 import Network.HTTP.Types (status400)
 import Database.Neo4j
@@ -80,6 +80,7 @@ userRoutes ::  ScottyM ()
 userRoutes = do
   get "/v1/users" $ do
     users <- liftIO getUsers
+    setHeader "Access-Control-Allow-Origin" "*"
     json users
     
   post "/v1/users" $ do
