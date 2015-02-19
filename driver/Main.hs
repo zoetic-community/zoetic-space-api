@@ -5,3 +5,4 @@ import ZoeticSpace.Application
 
 main :: IO ()
 main = run 3000 =<< app
+

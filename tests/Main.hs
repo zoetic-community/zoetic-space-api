@@ -3,10 +3,6 @@ module Main (main) where
 
 import           Test.Hspec
 import           Test.Hspec.Wai
-import           Test.Hspec.Wai.JSON
-
-import           Network.Wai (Application)
-import           Data.Aeson (Value(..), object, (.=))
 
 import ZoeticSpace.Application
 
