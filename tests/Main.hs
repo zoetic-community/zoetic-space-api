@@ -4,10 +4,7 @@ module Main (main, spec) where
 
 
 import           Test.Hspec hiding (shouldContain)
-import           Network.Wai.Test (SResponse)
-import           Data.ByteString (ByteString)
 import           Control.Applicative
-import           Data.Aeson (decode)
 
 import Helper
 
