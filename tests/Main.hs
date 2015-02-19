@@ -2,9 +2,6 @@
 
 module Main (main, spec) where
 
-import Data.Maybe
-import Data.Map
-import qualified Data.ByteString.Lazy as L
 
 import           Test.Hspec hiding (shouldContain)
 import           Network.Wai.Test (SResponse)
@@ -14,19 +11,9 @@ import           Data.Aeson (decode)
 
 import Helper
 
-import ZoeticSpace.Application
 
 main :: IO ()
 main = hspec spec
-
-get :: ByteString -> IO SResponse
-get path = app >>= getPath path
-
-statusOk :: ByteString -> Expectation
-statusOk path = (statusCode <$> get path) `shouldReturn` 200
-
-genericJSONArray :: L.ByteString -> [Map String String]
-genericJSONArray json = fromMaybe [] (decode json :: Maybe [(Map String String)])
 
 spec :: Spec
 spec = do
