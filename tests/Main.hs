@@ -1,20 +1,36 @@
 {-# LANGUAGE OverloadedStrings, QuasiQuotes #-}
-module Main (main) where
+module Main (main, spec) where
 
-import           Test.Hspec
-import           Test.Hspec.Wai
+import           Test.Hspec hiding (shouldContain)
+import           Test.QuickCheck
+import           Network.Wai.Test (SResponse)
+import           Data.ByteString (ByteString)
+import           Control.Applicative
+
+import Helper
 
 import ZoeticSpace.Application
 
 main :: IO ()
 main = hspec spec
 
-spec :: Spec
-spec = with app $ do
-  describe "GET /" $ do
-    it "responds with 200" $ do
-      get "/" `shouldRespondWith` 200
+get :: ByteString -> IO SResponse
+get path = app >>= getPath path
 
-  describe "GET /v1/users" $ do
-    it "sets CORS header" $ do
-      get "/v1/users" `shouldRespondWith` 200 {matchHeaders = ["Access-Control-Allow-Origin" <:> "*"]}
+spec :: Spec
+spec = do
+  describe "GET /" $ do
+    it "responds with HTTP status 200" $ do
+      (statusCode <$> get "/") `shouldReturn` 200
+
+    it "says 'Hello!'" $ do
+      (body <$> get "/") `shouldReturn` "Nothing to see here"
+
+  context "when given an invalid request path" $ do
+    it "responds with HTTP status 404" $ do
+      pending
+
+  context "when given an *arbitrary* invalid request path" $ do
+    it "responds with HTTP status 404" $ do
+      property $
+        pending

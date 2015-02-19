@@ -48,8 +48,13 @@ test-suite test
   ghc-options:       -Wall
 
   build-depends: base
-                , zoetic-space-api
-                , hspec >= 2.0.0
-                , hspec-wai ==0.6.3
-                , wai ==3.0.2.2
-                , aeson
+               , zoetic-space-api
+               , hspec >= 2.0.0
+               , bytestring
+               , http-types
+               , wai
+               , HUnit
+               , QuickCheck
+               , hspec >= 1.5.3
+               , wai-extra >= 3
+               , aeson
