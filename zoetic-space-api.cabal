@@ -58,3 +58,4 @@ test-suite test
                , hspec >= 1.5.3
                , wai-extra >= 3
                , aeson
+               , containers
